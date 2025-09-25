@@ -3,32 +3,37 @@ name: CI/CD for Telegram Bot
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:
+  workflow_dispatch: # возможность запустить вручную
 
 jobs:
   lint-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Забираем код репозитория
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2. Настраиваем Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
+      # 3. Устанавливаем зависимости
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pytelegrambotapi flake8
 
+      # 4. Линтер (flake8)
       - name: Run linter
         run: |
           flake8 . --count --max-line-length=100 --statistics
 
+      # 5. Деплой на сервер
       - name: Deploy to server (via SSH)
-        if: success()
+        if: success() # выполняется только если линтер прошёл
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -38,4 +43,6 @@ jobs:
           script: |
             cd /path/to/your/bot
             git pull origin main
-            systemctl restart mybot.service
+            # проброс токена как переменной окружения
+            export TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+            sudo systemctl restart mybot.service
