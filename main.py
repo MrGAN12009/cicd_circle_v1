@@ -2,7 +2,7 @@ import os
 import telebot
 
 
-TOKEN = os.getenv("TELEGRAM_TOKEN")  # берем токен из переменных окружения
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # берем токен из переменных окружения
 bot = telebot.TeleBot(TOKEN)
 
 
